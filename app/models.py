@@ -6,6 +6,7 @@ from typing import Optional
 class Base(DeclarativeBase):
     pass
  
+ #user database model
 class UserDB(Base):
     __tablename__ = "users"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -15,6 +16,7 @@ class UserDB(Base):
     student_id: Mapped[str] = mapped_column(unique=True, nullable=False)
     projects: Mapped[list["ProjectDB"]] = relationship(back_populates="owner", cascade="all,delete-orphan")
  
+ #project database model
 class ProjectDB(Base):
     __tablename__ = "projects"
     project_id: Mapped[int] = mapped_column(primary_key=True)
