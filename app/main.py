@@ -31,6 +31,7 @@ def commit_or_rollback(db: Session, error_msg: str):
     db.rollback()
     raise HTTPException(status_code=409, detail=error_msg)
  
+  #checks health returns if ok
 @app.get("/health")
 def health():
   return {"status": "ok"}
@@ -59,6 +60,7 @@ def get_db():
   finally:
     db.close()
  
+#tests if we can connect to database, if not retry
 def commit_or_rollback(db: Session, error_msg: str):
   try:
     db.commit()
@@ -66,11 +68,12 @@ def commit_or_rollback(db: Session, error_msg: str):
     db.rollback()
     raise HTTPException(status_code=409, detail=error_msg)
  
+ #checks health returns if ok
 @app.get("/health")
 def health():
   return {"status": "ok"}
  
-#Courses
+#Courses create
 @app.post("/api/courses", response_model=CourseRead, status_code=201, summary="You could adddetails")
 def create_course(course: CourseCreate, db: Session = Depends(get_db)):
   db_course = CourseDB(**course.model_dump())
@@ -79,12 +82,13 @@ def create_course(course: CourseCreate, db: Session = Depends(get_db)):
   db.refresh(db_course)
   return db_course
  
+ #get courses
 @app.get("/api/courses", response_model=list[CourseRead])
 def list_courses(limit: int = 10, offset: int = 0, db: Session = Depends(get_db)):
   stmt = select(CourseDB).order_by(CourseDB.id).limit(limit).offset(offset)
   return db.execute(stmt).scalars().all()
  
-#Projects
+#Projects make
 @app.post("/api/projects", response_model=ProjectRead, status_code=201)
 def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
     user = db.get(UserDB, project.owner_id)
